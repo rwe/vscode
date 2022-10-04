@@ -33,12 +33,7 @@ fi
 
 # Unit Tests
 if [[ "$OSTYPE" == darwin* ]]; then
-	ulimit -n 4096 ; \
-		ELECTRON_ENABLE_LOGGING=1 \
-		"$CODE" \
-		test/unit/electron/index.js "${EXTRA_ARGS[@]}" "$@"
-else
-		ELECTRON_ENABLE_LOGGING=1 \
-		"$CODE" \
-		test/unit/electron/index.js "${EXTRA_ARGS[@]}" "$@"
+	ulimit -n 4096
 fi
+
+ELECTRON_ENABLE_LOGGING=1 "$CODE" test/unit/electron/index.js "${EXTRA_ARGS[@]}" "$@"
