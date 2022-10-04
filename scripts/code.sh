@@ -63,7 +63,6 @@ function code-wsl() {
 			local WSL_CODE
 			WSL_CODE="$(wslpath -u "${WSL_EXT_WLOC%%[[:cntrl:]]}")"/scripts/wslCode-dev.sh
 			"$WSL_CODE" "$ROOT" "$@"
-			exit $?
 		else
 			echo "Remote WSL not installed, trying to run VSCode in WSL."
 		fi
