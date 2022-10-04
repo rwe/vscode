@@ -5,9 +5,6 @@ if [[ "$OSTYPE" == darwin* ]]; then
 	realpath() { [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"; }
 else
 	realpath() { readlink -f "$1"; }
-	# --disable-dev-shm-usage: when run on docker containers where size of /dev/shm
-	# partition < 64MB which causes OOM failure for chromium compositor that uses the partition for shared memory
-	LINUX_EXTRA_ARGS=(--disable-dev-shm-usage)
 fi
 
 ROOT="$(dirname "$(dirname "$(realpath "$0")")")"
@@ -19,6 +16,9 @@ if [[ "$OSTYPE" == darwin* ]]; then
 else
 	NAME="$(node -p "require('./product.json').applicationName")"
 	CODE=".build/electron/$NAME"
+	# --disable-dev-shm-usage: when run on docker containers where size of /dev/shm
+	# partition < 64MB which causes OOM failure for chromium compositor that uses the partition for shared memory
+	LINUX_EXTRA_ARGS=(--disable-dev-shm-usage)
 fi
 
 VSCODECRASHDIR="$ROOT/.build/crashes"
