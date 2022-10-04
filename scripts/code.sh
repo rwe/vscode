@@ -53,12 +53,9 @@ function code-wsl() {
 	# in a wsl shell
 	ELECTRON="$ROOT/.build/electron/Code - OSS.exe"
 	if [ -f "$ELECTRON"  ]; then
-		local CWD="$(pwd)"
-		cd "$ROOT"
 		export WSLENV="ELECTRON_RUN_AS_NODE/w:VSCODE_DEV/w:$WSLENV"
 		local WSL_EXT_ID='ms-vscode-remote.remote-wsl'
-		local WSL_EXT_WLOC="$(echo | VSCODE_DEV=1 ELECTRON_RUN_AS_NODE=1 "$ELECTRON" out/cli.js --ms-enable-electron-run-as-node --locate-extension "$WSL_EXT_ID")"
-		cd "$CWD"
+		local WSL_EXT_WLOC="$(cd "$ROOT"; echo | VSCODE_DEV=1 ELECTRON_RUN_AS_NODE=1 "$ELECTRON" out/cli.js --ms-enable-electron-run-as-node --locate-extension "$WSL_EXT_ID")"
 		if [ -n "$WSL_EXT_WLOC" ]; then
 			# replace \r\n with \n in WSL_EXT_WLOC
 			local WSL_CODE="$(wslpath -u "${WSL_EXT_WLOC%%[[:cntrl:]]}")"/scripts/wslCode-dev.sh
