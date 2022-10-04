@@ -10,6 +10,14 @@ fi
 ROOT="$(dirname "$(dirname "$(realpath "$0")")")"
 cd "$ROOT"
 
+# Node modules
+test -d node_modules || yarn
+
+# Get electron
+yarn electron
+
+VSCODECRASHDIR="$ROOT/.build/crashes"
+
 if [[ "$OSTYPE" == darwin* ]]; then
 	NAME="$(node -p "require('./product.json').nameLong")"
 	CODE="./.build/electron/$NAME.app/Contents/MacOS/Electron"
@@ -20,14 +28,6 @@ else
 	# partition < 64MB which causes OOM failure for chromium compositor that uses the partition for shared memory
 	LINUX_EXTRA_ARGS=(--disable-dev-shm-usage)
 fi
-
-VSCODECRASHDIR="$ROOT/.build/crashes"
-
-# Node modules
-test -d node_modules || yarn
-
-# Get electron
-yarn electron
 
 # Unit Tests
 if [[ "$OSTYPE" == darwin* ]]; then
