@@ -11,7 +11,17 @@ else
 	LINUX_EXTRA_ARGS=(--disable-dev-shm-usage)
 fi
 
+tmp_dirs=()
+cleanup_tmp_dirs() {
+	if [ ${#tmp_dirs[@]} != 0 ]; then
+		rm -rf "${tmp_dirs[@]}"
+	fi
+}
+trap cleanup_tmp_dirs EXIT
+
 VSCODEUSERDATADIR="$(mktemp -d 2>/dev/null)"
+tmp_dirs+=("${VSCODEUSERDATADIR}")
+
 VSCODECRASHDIR="$ROOT/.build/crashes"
 VSCODELOGSDIR="$ROOT/.build/logs/integration-tests"
 
@@ -101,22 +111,28 @@ echo
 "$INTEGRATION_TEST_ELECTRON_PATH" "${LINUX_EXTRA_ARGS[@]}" "$ROOT/extensions/emmet/test-workspace" --extensionDevelopmentPath="$ROOT/extensions/emmet" --extensionTestsPath="$ROOT/extensions/emmet/out/test" "${API_TESTS_EXTRA_ARGS[@]}"
 kill_app
 
+git_tmp_dir="$(mktemp -d 2>/dev/null)"
+tmp_dirs+=("${git_tmp_dir}")
 echo
 echo '### Git tests'
 echo
-"$INTEGRATION_TEST_ELECTRON_PATH" "${LINUX_EXTRA_ARGS[@]}" "$(mktemp -d 2>/dev/null)" --extensionDevelopmentPath="$ROOT/extensions/git" --extensionTestsPath="$ROOT/extensions/git/out/test" "${API_TESTS_EXTRA_ARGS[@]}"
+"$INTEGRATION_TEST_ELECTRON_PATH" "${LINUX_EXTRA_ARGS[@]}" "${git_tmp_dir}" --extensionDevelopmentPath="$ROOT/extensions/git" --extensionTestsPath="$ROOT/extensions/git/out/test" "${API_TESTS_EXTRA_ARGS[@]}"
 kill_app
 
+ipynb_tmp_dir="$(mktemp -d 2>/dev/null)"
+tmp_dirs+=("${ipynb_tmp_dir}")
 echo
 echo '### Ipynb tests'
 echo
-"$INTEGRATION_TEST_ELECTRON_PATH" "${LINUX_EXTRA_ARGS[@]}" "$(mktemp -d 2>/dev/null)" --extensionDevelopmentPath="$ROOT/extensions/ipynb" --extensionTestsPath="$ROOT/extensions/ipynb/out/test" "${API_TESTS_EXTRA_ARGS[@]}"
+"$INTEGRATION_TEST_ELECTRON_PATH" "${LINUX_EXTRA_ARGS[@]}" "${ipynb_tmp_dir}" --extensionDevelopmentPath="$ROOT/extensions/ipynb" --extensionTestsPath="$ROOT/extensions/ipynb/out/test" "${API_TESTS_EXTRA_ARGS[@]}"
 kill_app
 
+conf_tmp_dir="$(mktemp -d 2>/dev/null)"
+tmp_dirs+=("${conf_tmp_dir}")
 echo
 echo '### Configuration editing tests'
 echo
-"$INTEGRATION_TEST_ELECTRON_PATH" "${LINUX_EXTRA_ARGS[@]}" "$(mktemp -d 2>/dev/null)" --extensionDevelopmentPath="$ROOT/extensions/configuration-editing" --extensionTestsPath="$ROOT/extensions/configuration-editing/out/test" "${API_TESTS_EXTRA_ARGS[@]}"
+"$INTEGRATION_TEST_ELECTRON_PATH" "${LINUX_EXTRA_ARGS[@]}" "${conf_tmp_dir}" --extensionDevelopmentPath="$ROOT/extensions/configuration-editing" --extensionTestsPath="$ROOT/extensions/configuration-editing/out/test" "${API_TESTS_EXTRA_ARGS[@]}"
 kill_app
 
 
@@ -131,8 +147,3 @@ echo
 echo '### HTML tests'
 echo
 cd "$ROOT/extensions/html-language-features/server" && "$ROOT/scripts/node-electron.sh" test/index.js
-
-
-# Cleanup
-
-rm -rf "$VSCODEUSERDATADIR"
