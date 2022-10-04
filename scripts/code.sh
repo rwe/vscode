@@ -75,5 +75,3 @@ elif [ -f /mnt/wslg/versions.txt ]; then
 else
 	code "$@"
 fi
-
-exit $?
