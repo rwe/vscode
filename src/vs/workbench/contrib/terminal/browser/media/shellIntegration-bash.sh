@@ -125,7 +125,7 @@ __vsc_command_complete() {
 	if [ "$__vsc_current_command" = "" ]; then
 		builtin printf '\e]633;D\a'
 	else
-		builtin printf '\e]633;D;%s\a' "$__vsc_status"
+		builtin printf '\e]633;D;%d\a' "${__vsc_status:-0}"
 	fi
 	__vsc_update_cwd
 }
