@@ -122,10 +122,10 @@ __vsc_continuation_end() {
 }
 
 __vsc_command_complete() {
-	if [ "$__vsc_current_command" = "" ]; then
+	if [ $# -eq 0 ]; then
 		builtin printf '\e]633;D\a'
 	else
-		builtin printf '\e]633;D;%d\a' "${__vsc_status:-0}"
+		builtin printf '\e]633;D;%d\a' "${1}"
 	fi
 	__vsc_update_cwd
 }
@@ -149,7 +149,8 @@ __vsc_update_prompt() {
 }
 
 __vsc_precmd() {
-	__vsc_command_complete "$__vsc_status"
+	# If __vsc_current_command was set, pass the status, otherwise no argument.
+	__vsc_command_complete ${__vsc_current_command:+"${__vsc_status:-0}"}
 	__vsc_current_command=""
 	__vsc_update_prompt
 }
