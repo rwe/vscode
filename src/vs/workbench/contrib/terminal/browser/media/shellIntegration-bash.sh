@@ -95,6 +95,7 @@ __vsc_custom_PS1=""
 __vsc_custom_PS2=""
 __vsc_in_command_execution="1"
 __vsc_current_command=""
+__vsc_status=0
 
 __vsc_prompt_start() {
 	builtin printf '\e]633;A\a'
@@ -150,7 +151,7 @@ __vsc_update_prompt() {
 
 __vsc_precmd() {
 	# If __vsc_current_command was set, pass the status, otherwise no argument.
-	__vsc_command_complete ${__vsc_current_command:+"${__vsc_status:-0}"}
+	__vsc_command_complete ${__vsc_current_command:+"${__vsc_status}"}
 	__vsc_current_command=""
 	__vsc_update_prompt
 }
