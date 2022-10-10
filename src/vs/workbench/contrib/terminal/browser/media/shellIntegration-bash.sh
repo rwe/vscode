@@ -116,15 +116,12 @@ __vsc_precmd() {
 	__vsc_update_prompt
 }
 
-__vsc_preexec_all() {
+__vsc_preexec() {
 	[ "$__vsc_in_command_execution" = 0 ] || builtin return
 
 	__vsc_in_command_execution=1
 	builtin eval "${__vsc_dbg_trap:-}"
-	__vsc_preexec
-}
 
-__vsc_preexec() {
 	__vsc_initialized=1
 	if [[ ! "$BASH_COMMAND" =~ ^__vsc_prompt* ]]; then
 		# Use history if it's available to verify the command as BASH_COMMAND comes in with aliases
@@ -144,7 +141,7 @@ __vsc_preexec() {
 if [[ -n "${bash_preexec_imported:-}" ]]; then
 	__vsc_dbg_trap=''
 	precmd_functions+=(__vsc_prompt_cmd)
-	preexec_functions+=(__vsc_preexec_all)
+	preexec_functions+=(__vsc_preexec)
 else
 	__vsc_tmp_prev_trap="$(trap -p DEBUG)"
 	if [[ "$__vsc_tmp_prev_trap" =~ .*\[\[.* ]]; then
@@ -157,9 +154,9 @@ else
 		__vsc_tmp_prev_trap="$(trap -p DEBUG | cut -d' ' -f3 | tr -d \')"
 	fi
 
-	if [[ "$__vsc_tmp_prev_trap" != '__vsc_preexec_all "$_"' ]]; then
+	if [[ "$__vsc_tmp_prev_trap" != '__vsc_preexec "$_"' ]]; then
 		__vsc_dbg_trap="$__vsc_tmp_prev_trap"
-		trap '__vsc_preexec_all "$_"' DEBUG
+		trap '__vsc_preexec "$_"' DEBUG
 	fi
 	builtin unset __vsc_tmp_prev_trap
 fi
