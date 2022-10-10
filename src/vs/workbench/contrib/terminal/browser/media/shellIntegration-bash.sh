@@ -116,6 +116,21 @@ __vsc_precmd() {
 	__vsc_update_prompt
 }
 
+__vsc_preexec_only() {
+	if [ "$__vsc_in_command_execution" = "0" ]; then
+		__vsc_in_command_execution="1"
+		__vsc_preexec
+	fi
+}
+
+__vsc_preexec_all() {
+	if [ "$__vsc_in_command_execution" = "0" ]; then
+		__vsc_in_command_execution="1"
+		builtin eval ${__vsc_dbg_trap}
+		__vsc_preexec
+	fi
+}
+
 __vsc_preexec() {
 	__vsc_initialized=1
 	if [[ ! "$BASH_COMMAND" =~ ^__vsc_prompt* ]]; then
@@ -134,12 +149,6 @@ __vsc_preexec() {
 
 # Debug trapping/preexec inspired by starship (ISC)
 if [[ -n "${bash_preexec_imported:-}" ]]; then
-	__vsc_preexec_only() {
-		if [ "$__vsc_in_command_execution" = "0" ]; then
-			__vsc_in_command_execution="1"
-			__vsc_preexec
-		fi
-	}
 	precmd_functions+=(__vsc_prompt_cmd)
 	preexec_functions+=(__vsc_preexec_only)
 else
@@ -154,22 +163,9 @@ else
 		__vsc_tmp_prev_trap="$(trap -p DEBUG | cut -d' ' -f3 | tr -d \')"
 	fi
 	if [[ -z "$__vsc_tmp_prev_trap" ]]; then
-		__vsc_preexec_only() {
-			if [ "$__vsc_in_command_execution" = "0" ]; then
-				__vsc_in_command_execution="1"
-				__vsc_preexec
-			fi
-		}
 		trap '__vsc_preexec_only "$_"' DEBUG
 	elif [[ "$__vsc_tmp_prev_trap" != '__vsc_preexec_only "$_"' && "$__vsc_tmp_prev_trap" != '__vsc_preexec_all "$_"' ]]; then
 		__vsc_dbg_trap="$__vsc_tmp_prev_trap"
-		__vsc_preexec_all() {
-			if [ "$__vsc_in_command_execution" = "0" ]; then
-				__vsc_in_command_execution="1"
-				builtin eval ${__vsc_dbg_trap}
-				__vsc_preexec
-			fi
-		}
 		trap '__vsc_preexec_all "$_"' DEBUG
 	fi
 	builtin unset __vsc_tmp_prev_trap
