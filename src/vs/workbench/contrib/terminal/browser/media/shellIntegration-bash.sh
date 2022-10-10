@@ -161,7 +161,7 @@ else
 			fi
 		}
 		trap '__vsc_preexec_only "$_"' DEBUG
-	elif [[ "$__vsc_dbg_trap" != '__vsc_preexec "$_"' && "$__vsc_dbg_trap" != '__vsc_preexec_all "$_"' ]]; then
+	elif [[ "$__vsc_dbg_trap" != '__vsc_preexec_only "$_"' && "$__vsc_dbg_trap" != '__vsc_preexec_all "$_"' ]]; then
 		__vsc_preexec_all() {
 			if [ "$__vsc_in_command_execution" = "0" ]; then
 				__vsc_in_command_execution="1"
