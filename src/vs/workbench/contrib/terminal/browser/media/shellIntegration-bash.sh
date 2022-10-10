@@ -143,17 +143,17 @@ if [[ -n "${bash_preexec_imported:-}" ]]; then
 	precmd_functions+=(__vsc_prompt_cmd)
 	preexec_functions+=(__vsc_preexec_only)
 else
-	__vsc_dbg_trap="$(trap -p DEBUG)"
-	if [[ "$__vsc_dbg_trap" =~ .*\[\[.* ]]; then
+	__vsc_tmp_prev_trap="$(trap -p DEBUG)"
+	if [[ "$__vsc_tmp_prev_trap" =~ .*\[\[.* ]]; then
 		#HACK - is there a better way to do this?
-		__vsc_dbg_trap=${__vsc_dbg_trap#'trap -- '*}
-		__vsc_dbg_trap=${__vsc_dbg_trap%' DEBUG'}
-		__vsc_dbg_trap=${__vsc_dbg_trap#"'"*}
-		__vsc_dbg_trap=${__vsc_dbg_trap%"'"}
+		__vsc_tmp_prev_trap=${__vsc_tmp_prev_trap#'trap -- '*}
+		__vsc_tmp_prev_trap=${__vsc_tmp_prev_trap%' DEBUG'}
+		__vsc_tmp_prev_trap=${__vsc_tmp_prev_trap#"'"*}
+		__vsc_tmp_prev_trap=${__vsc_tmp_prev_trap%"'"}
 	else
-		__vsc_dbg_trap="$(trap -p DEBUG | cut -d' ' -f3 | tr -d \')"
+		__vsc_tmp_prev_trap="$(trap -p DEBUG | cut -d' ' -f3 | tr -d \')"
 	fi
-	if [[ -z "$__vsc_dbg_trap" ]]; then
+	if [[ -z "$__vsc_tmp_prev_trap" ]]; then
 		__vsc_preexec_only() {
 			if [ "$__vsc_in_command_execution" = "0" ]; then
 				__vsc_in_command_execution="1"
@@ -161,7 +161,8 @@ else
 			fi
 		}
 		trap '__vsc_preexec_only "$_"' DEBUG
-	elif [[ "$__vsc_dbg_trap" != '__vsc_preexec_only "$_"' && "$__vsc_dbg_trap" != '__vsc_preexec_all "$_"' ]]; then
+	elif [[ "$__vsc_tmp_prev_trap" != '__vsc_preexec_only "$_"' && "$__vsc_tmp_prev_trap" != '__vsc_preexec_all "$_"' ]]; then
+		__vsc_dbg_trap="$__vsc_tmp_prev_trap"
 		__vsc_preexec_all() {
 			if [ "$__vsc_in_command_execution" = "0" ]; then
 				__vsc_in_command_execution="1"
@@ -171,6 +172,7 @@ else
 		}
 		trap '__vsc_preexec_all "$_"' DEBUG
 	fi
+	builtin unset __vsc_tmp_prev_trap
 fi
 
 __vsc_update_prompt
